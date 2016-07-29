@@ -10,8 +10,11 @@ local ADDON, ns = ...
 
 local S_COMPLETE_REWARDS_S = ERR_QUEST_COMPLETE_S:gsub("%.$", "!") .. " " .. GARRISON_MISSION_REWARDS_TOOLTIP:gsub("|c.+|r", "%%s")
 
-AlertFrame:HookScript("OnEvent", function(self, event, ...)
-	print(event)
+local OnEvent = AlertFrame:GetScript("OnEvent")
+AlertFrame:SetScript("OnEvent", function(self, event, ...)
+	print(event .. ">>>")
+	OnEvent(self, event, ...)
+	print("<<<")
 end)
 
 --------------------------------------------------------------------------------
@@ -58,28 +61,36 @@ end
 -- GARRISON_FOLLOWER_ADDED
 
 local GARRISON_FOLLOWER_ADDED_S = GARRISON_FOLLOWER_ADDED_TOAST .. ": %s"
-local GARRISON_FOLLOWER_ADDED_UPGRADED_S = GARRISON_FOLLOWER_ADDED_TOAST .. ": %s (" .. LOOTUPGRADEFRAME_TITLE .. ")"
+local GARRISON_FOLLOWER_ADDED_UPGRADED_S = GARRISON_FOLLOWER_ADDED_TOAST .. ": %s. " .. LOOTUPGRADEFRAME_TITLE
 
-local GARRISON_SHIP_ADDED_S = GARRISON_SHIPYARD_FOLLOWER_ADDED_TOAST .. ": %s"
-local GARRISON_SHIP_ADDED_UPGRADED_S = GARRISON_SHIPYARD_FOLLOWER_ADDED_TOAST .. ": %s (" .. LOOTUPGRADEFRAME_TITLE .. ")"
-
-function GarrisonFollowerAlertSystem:AddAlert(followerID, name, class, level, quality, isUpgraded, texPrefix, followerType)
+function GarrisonFollowerAlertSystem:AddAlert(followerID, name, level, quality, isUpgraded)
 	PlaySound("UI_Garrison_Toast_FollowerGained")
 
 	local link = C_Garrison.GetFollowerLinkByID(followerID)
 
-	local template
-	if (followerType == LE_FOLLOWER_TYPE_SHIPYARD_6_2) then
-		template = isUpgraded and GARRISON_SHIP_ADDED_UPGRADED_S or GARRISON_SHIP_ADDED_S
-	else
-		template = isUpgraded and GARRISON_FOLLOWER_ADDED_UPGRADED_S or GARRISON_FOLLOWER_ADDED_S
-	end
-
 	local color = ChatTypeInfo.SYSTEM
-	DEFAULT_CHAT_FRAME:AddMessage(format(template, link or name, _G["ITEM_QUALITY" .. quality .."_DESC"]), color.r, color.g, color.b)
+	if isUpgraded then
+		DEFAULT_CHAT_FRAME:AddMessage(format(GARRISON_FOLLOWER_ADDED_UPGRADED_S, link or name, _G["ITEM_QUALITY" .. quality .."_DESC"]), color.r, color.g, color.b)
+	else
+		DEFAULT_CHAT_FRAME:AddMessage(format(GARRISON_FOLLOWER_ADDED_S, link or name), color.r, color.g, color.b)
+	end
 end
 
-GarrisonShipFollowerAlertSystem.AddAlert = GarrisonFollowerAlertSystem.AddAlert
+local GARRISON_SHIP_ADDED_S = GARRISON_SHIPYARD_FOLLOWER_ADDED_TOAST .. ": %s"
+local GARRISON_SHIP_ADDED_UPGRADED_S = GARRISON_SHIPYARD_FOLLOWER_ADDED_TOAST .. ": %s. " .. LOOTUPGRADEFRAME_TITLE
+
+function GarrisonShipFollowerAlertSystem:AddAlert(followerID, name, class, texPrefix, level, quality, isUpgraded)
+	PlaySound("UI_Garrison_Toast_FollowerGained")
+
+	local link = C_Garrison.GetFollowerLinkByID(followerID)
+
+	local color = ChatTypeInfo.SYSTEM
+	if isUpgraded then
+		DEFAULT_CHAT_FRAME:AddMessage(format(GARRISON_SHIP_ADDED_UPGRADED_S, link or name, _G["ITEM_QUALITY" .. quality .."_DESC"]), color.r, color.g, color.b)
+	else
+		DEFAULT_CHAT_FRAME:AddMessage(format(GARRISON_SHIP_ADDED_S, link or name), color.r, color.g, color.b)
+	end
+end
 
 --------------------------------------------------------------------------------
 -- GARRISON_MISSION_FINISHED
@@ -87,15 +98,14 @@ GarrisonShipFollowerAlertSystem.AddAlert = GarrisonFollowerAlertSystem.AddAlert
 local GARRISON_MISSION_FINISHED = GARRISON_LOCATION_TOOLTIP .. " " .. GARRISON_MISSION_COMPLETE
 local SHIPYARD_MISSION_FINISHED = GARRISON_SHIPYARD_FLEET_TITLE .. " " .. GARRISON_MISSION_COMPLETE
 
-function GarrisonMissionAlertSystem:AddAlert(followerTypeID, missionID)
-	GarrisonLandingPageMinimapButton.MinimapLoopPulseAnim:Play()
+function GarrisonMissionAlertSystem:AddAlert(missionID)
 	PlaySound("UI_Garrison_Toast_MissionComplete")
 
 	local link = C_Garrison.GetMissionLink(missionID)
 	local missionInfo = C_Garrison.GetBasicMissionInfo(missionID)
 
 	local color = ChatTypeInfo.SYSTEM
-	local template = followerTypeID == LE_FOLLOWER_TYPE_SHIPYARD_6_2 and SHIPYARD_MISSION_FINISHED or GARRISON_MISSION_FINISHED
+	local template = missionInfo.followerTypeID == LE_FOLLOWER_TYPE_SHIPYARD_6_2 and SHIPYARD_MISSION_FINISHED or GARRISON_MISSION_FINISHED
 	DEFAULT_CHAT_FRAME:AddMessage(format("%s: %s", template, link or missionInfo.name), color.r, color.g, color.b)
 end
 
@@ -186,7 +196,7 @@ ScenarioAlertSystem.AddAlert = DungeonCompletionAlertSystem.AddAlert
 -- SHOW_LOOT_TOAST
 
 local ROLL_WON_S = LOOT_ROLL_YOU_WON
-local ROLL_WON_UPGRADED_S = LOOT_ROLL_YOU_WON .. " (" .. LOOTUPGRADEFRAME_TITLE .. ")"
+local ROLL_WON_UPGRADED_S = LOOT_ROLL_YOU_WON .. " " .. LOOTUPGRADEFRAME_TITLE
 
 function LootAlertSystem:AddAlert(itemLink, quantity, rollType, roll, specID, isCurrency, showFactionBG, lootSource, lessAwesome, isUpgraded, isPersonal)
 	PlaySoundKitID(isUpgraded and 51561 or 31578) -- UI_Warforged_Item_Loot_Toast or UI_EpicLoot_Toast
@@ -326,7 +336,7 @@ end
 --------------------------------------------------------------------------------
 -- SHOW_LOOT_TOAST_UPGRADE
 
-local ITEM_LOOT_UPGRADE_S = LOOT_ITEM_SELF .. " (" .. LOOTUPGRADEFRAME_TITLE .. ")"
+local ITEM_LOOT_UPGRADE_S = LOOT_ITEM_SELF .. " " .. LOOTUPGRADEFRAME_TITLE
 
 function LootUpgradeAlertSystem:AddAlert(itemLink, quantity, specID, sex, baseQuality, isPersonal, lessAwesome)
 	PlaySoundKitID(31578) -- UI_EpicLoot_Toast
