@@ -1,11 +1,11 @@
-## Interface: 70000
+## Interface: 70200
 
 ## Title: No Toast
 ## Notes: Replaces annoying "toast" popups with chat frame messages.
 
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-License: All Rights Reserved
-## X-Website: https://github.com/Phanx/NoToast
+## X-License: Whatever, just don't use my name or the "NoToast" title.
+## X-Website: https://github.com/phanx-wow/NoToast
 
 NoToast.lua
