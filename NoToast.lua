@@ -73,12 +73,12 @@ end
 function DungeonCompletionAlertSystem:AddAlert()
 	local scenarioBonusComplete
 	if C_Scenario.IsInScenario() and not C_Scenario.TreatScenarioAsDungeon() then
-		PlaySound("UI_Scenario_Ending")
+		PlaySound(SOUNDKIT.UI_SCENARIO_ENDING)
 		local _, _, _, _, hasBonusStep, isBonusStepComplete = C_Scenario.GetInfo()
 		scenarioBonusComplete = hasBonusStep and isBonusStepComplete
 		-- TODO: include this info in the printed message
 	else
-		PlaySound("LFG_Rewards")
+		PlaySound(SOUNDKIT.LFG_REWARDS)
 	end
 
 	local name, typeID, subtypeID, textureFilename, moneyBase, moneyVar, 
@@ -111,7 +111,7 @@ ScenarioAlertSystem.AddAlert = DungeonCompletionAlertSystem.AddAlert
 -- GARRISON_BUILDING_ACTIVATABLE
 
 function GarrisonBuildingAlertSystem:AddAlert(name)
-	PlaySound("UI_Garrison_Toast_BuildingComplete")
+	PlaySound(SOUNDKIT.UI_GARRISON_TOAST_BUILDING_COMPLETE)
 	Print(nil, nil, "%s: %s", GARRISON_BUILDING_COMPLETE, name)
 end
 
@@ -122,7 +122,7 @@ local GARRISON_FOLLOWER_ADDED_S = GARRISON_FOLLOWER_ADDED_TOAST .. ": %s"
 local GARRISON_FOLLOWER_ADDED_UPGRADED_S = GARRISON_FOLLOWER_ADDED_TOAST .. ": %s. " .. LOOTUPGRADEFRAME_TITLE
 
 function GarrisonFollowerAlertSystem:AddAlert(followerID, name, level, quality, isUpgraded)
-	PlaySound("UI_Garrison_Toast_FollowerGained")
+	PlaySound(SOUNDKIT.UI_GARRISON_TOAST_FOLLOWER_GAINED)
 
 	local link = C_Garrison.GetFollowerLinkByID(followerID)
 	if isUpgraded then
@@ -136,7 +136,7 @@ local GARRISON_SHIP_ADDED_S = GARRISON_SHIPYARD_FOLLOWER_ADDED_TOAST .. ": %s"
 local GARRISON_SHIP_ADDED_UPGRADED_S = GARRISON_SHIPYARD_FOLLOWER_ADDED_TOAST .. ": %s. " .. LOOTUPGRADEFRAME_TITLE
 
 function GarrisonShipFollowerAlertSystem:AddAlert(followerID, name, class, texPrefix, level, quality, isUpgraded)
-	PlaySound("UI_Garrison_Toast_FollowerGained")
+	PlaySound(SOUNDKIT.UI_GARRISON_TOAST_FOLLOWER_GAINED)
 
 	local link = C_Garrison.GetFollowerLinkByID(followerID)
 	if isUpgraded then
@@ -152,7 +152,7 @@ local GARRISON_MISSION_FINISHED = GARRISON_LOCATION_TOOLTIP .. " " .. GARRISON_M
 local SHIPYARD_MISSION_FINISHED = GARRISON_SHIPYARD_FLEET_TITLE .. " " .. GARRISON_MISSION_COMPLETE
 
 function GarrisonMissionAlertSystem:AddAlert(missionInfo)
-	PlaySound("UI_Garrison_Toast_MissionComplete")
+	PlaySound(SOUNDKIT.UI_GARRISON_TOAST_MISSION_COMPLETE)
 	
 	local message = missionInfo.followerTypeID == LE_FOLLOWER_TYPE_SHIPYARD_6_2 and SHIPYARD_MISSION_FINISHED or GARRISON_MISSION_FINISHED
 	local link = C_Garrison.GetMissionLink(missionInfo.missionID) or missionInfo.name
@@ -170,7 +170,7 @@ local GARRISON_MISSION_ADDED_LEVEL_ITEMLEVEL = GARRISON_MISSION_ADDED_TOAST1 .. 
 local RARE = " (" .. ITEM_QUALITY3_DESC .. ")"
 
 function GarrisonRandomMissionAlertSystem:AddAlert(missionID)
-	PlaySound("UI_Garrison_Toast_MissionComplete")
+	PlaySound(SOUNDKIT.UI_GARRISON_TOAST_MISSION_COMPLETE)
 
 	local missionInfo = C_Garrison.GetBasicMissionInfo(missionID)
 	if missionInfo.iLevel == 0 then
@@ -193,7 +193,7 @@ end
 local RESEARCH_COMPLETE_S = GARRISON_TALENT_RESEARCH_COMPLETE .. ": %s"
 
 function GarrisonTalentAlertSystem:AddAlert(garrisonType)
-	PlaySound("UI_OrderHall_Talent_Ready_Toast")
+	PlaySound(SOUNDKIT.UI_ORDERHALL_TALENT_READY_TOAST)
 	local talentID = C_Garrison.GetCompleteTalent(garrisonType)
 	local talent = C_Garrison.GetTalent(talentID)
 
@@ -222,7 +222,7 @@ function InvasionAlertSystem:AddAlert(rewardQuestID, rewardItemLink)
 		return false
 	end
 
-	PlaySound("UI_Scenario_Ending")
+	PlaySound(SOUNDKIT.UI_SCENARIO_ENDING)
 	local scenarioName, currentStage, numStages, flags, hasBonusStep, isBonusStepComplete, _, xp, money, scenarioType, areaName = C_Scenario.GetInfo()
 	local zoneName = areaName or scenarioName
 	local bonusComplete = hasBonusStep and isBonusStepComplete
@@ -251,7 +251,7 @@ local ROLL_WON_S = LOOT_ROLL_YOU_WON
 local ROLL_WON_UPGRADED_S = LOOT_ROLL_YOU_WON .. " " .. LOOTUPGRADEFRAME_TITLE
 
 function LootAlertSystem:AddAlert(itemLink, quantity, rollType, roll, specID, isCurrency, showFactionBG, lootSource, lessAwesome, isUpgraded, isPersonal)
-	PlaySoundKitID(isUpgraded and 51561 or 31578) -- UI_Warforged_Item_Loot_Toast or UI_EpicLoot_Toast
+	PlaySound(isUpgraded and SOUNDKIT.UI_WARFORGED_ITEM_LOOT_TOAST or SOUNDKIT.UI_EPICLOOT_TOAST)
 	if isCurrency then
 		if quantity > 1 then
 			Print("CURRENCY", "CURRENCY", CURRENCY_GAINED_MULTIPLE, itemLink, quantity)
@@ -280,7 +280,7 @@ end
 local LEGENDARY_LOOT_S = LOOT_ITEM_SELF .. "(" .. LEGENDARY_ITEM_LOOT_LABEL .. ")"
 
 function LegendaryItemAlertSystem:AddAlert(itemLink)
-	PlaySound("UI_LegendaryLoot_Toast")
+	PlaySound(SOUNDKIT.UI_LEGENDARY_LOOT_TOAST)
 	Print(nil, "LOOT", LEGENDARY_LOOT_S, itemLink)
 end
 
@@ -290,7 +290,7 @@ end
 local ITEM_LOOT_UPGRADE_S = LOOT_ITEM_SELF .. " " .. LOOTUPGRADEFRAME_TITLE
 
 function LootUpgradeAlertSystem:AddAlert(itemLink, quantity, specID, sex, baseQuality, isPersonal, lessAwesome)
-	PlaySoundKitID(31578) -- UI_EpicLoot_Toast
+	PlaySound(SOUNDKIT.UI_EPICLOOT_TOAST)
 	local _, _, rarity = GetItemInfo(itemLink)
 	Print(nil, "LOOT", ITEM_LOOT_UPGRADE_S,
 		itemLink,
@@ -300,12 +300,12 @@ end
 --------------------------------------------------------------------------------
 
 function MoneyWonAlertSystem:AddAlert(quantity)
-	PlaySoundKitID(31578) -- UI_EpicLoot_Toast
+	PlaySound(SOUNDKIT.UI_EPICLOOT_TOAST)
 	Print("MONEY", "MONEY", CURRENCY_GAINED, GetCoinTextureString(amount))
 end
 
 function HonorAwardedAlertSystem:AddAlert(amount)
-	PlaySoundKitID(31578) -- UI_EpicLoot_Toast
+	PlaySound(SOUNDKIT.UI_EPICLOOT_TOAST)
 	Print("CURRENCY", "CURRENCY", MERCHANT_HONOR_POINTS, amount)
 end
 
@@ -322,7 +322,7 @@ function NewRecipeLearnedAlertSystem:AddAlert(recipeID)
 	local name = GetSpellInfo(recipeID)
 	if not name then return end
 
-	PlaySound("UI_Professions_NewRecipeLearned_Toast")
+	PlaySound(SOUNDKIT.UI_PROFESSIONS_NEW_RECIPE_LEARNED_TOAST)
 
 	local rank = GetSpellRank(recipeID)
 	local rankTexture = NewRecipeLearnedAlertFrame_GetStarTextureFromRank(rank)
@@ -344,7 +344,7 @@ end)
 -- STORE_PRODUCT_DELIVERED
 
 function StorePurchaseAlertSystem:AddAlert(productType, icon, name, payloadID)
-	PlaySound("UI_igStore_PurchaseDelivered_Toast_01")
+	PlaySound(SOUNDKIT.UI_IG_STORE_PURCHASE_DELIVERED_TOAST_01)
 
 	local link
 	if productType == LE_STORE_DELIVERY_TYPE_ITEM then
@@ -380,7 +380,7 @@ end
 local currencyIDs = {61,81,241,361,384,385,391,393,394,397,398,399,400,401,402,416,515,614,615,676,677,697,738,752,754,776,777,789,821,823,824,828,829,910,944,980,994,999,1008,1017,1020,1101,1129,1149,1154,1155,1166,1171,1172,1173,1174,1191,1220,1226,1268,1273,1275}
 
 function WorldQuestCompleteAlertSystem:AddAlert(questID, rewardItemLink)
-	PlaySound("UI_WorldQuest_Complete")
+	PlaySound(SOUNDKIT.UI_WORLDQUEST_COMPLETE)
 
 	local isInArea, isOnMap, numObjectives, taskName, displayAsObjective = GetTaskInfo(questID)
 	local money = GetQuestLogRewardMoney(questID)
